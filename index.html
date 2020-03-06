@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js'></script>
+    <style>
+        body {
+            background-color: darkslategrey;
+            color: white;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+           
+        }
+        .product {
+            background-color: orange;
+            border: palegreen 2px solid;
+            justify-content: space-around;
+            width: 200px;
+            padding: 10px;
+            margin: 30px;
+            text-align: center;
+            border-radius: 30px;
+        }
+    </style>
+    </head>
+  <body>
+    <h1>My React App</h1>
+    <div id='root'></div>
+    <script type='text/babel'>
+        class App extends React.Component {
+            constructor() {
+                super()
+                this.state = {
+                    products: [],
+                    newProd: ''
+                }
+            }
+            async componentDidMount() {
+                this.setState(
+                    { products: (await axios.get('/api/products')).data },
+                    )
+                }
+            async addNewProd() {
+                const { newProd } = this.state
+                const newProduct = (await axios.post('/api/products', {name: newProd})).data
+
+            }
+            render () {
+                const { products, newProd} = this.state
+                return (
+                    <div>
+                        <h1>
+                            Acme Express w/ JSON
+                        </h1>
+                        <form onSubmit={ev => ev.preventDeafult()}>
+                            <input value={newProd} onChange={ev => this.setState({newProd: ev.target.value})}/>
+                            <button onClick={this.addNewProd.bind(this)}>Add Product</button>
+                        </form>
+                        <div className='container'>
+                            {
+                                products.map(product => {
+                                    return (
+                                        <div className ='product'>
+                                         <h3 key={product.id}>{ product.name }</h3>
+                                         <p> { product.description }</p>
+                                         <p> ${ product.suggestedPrice }.00</p>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+                )
+            }
+        }
+
+        // class AddProd extends React.Component {
+        //     constructor() {
+        //         super()
+        //         this.state = {
+        //             product: []
+        //         }
+        //     }
+        //     render() {
+        //         return (
+        //             <form>
+        //         )
+        //     }
+        // }
+
+      ReactDOM.render(<App />, document.querySelector('#root'));
+    </script>
+  </body>
+</html>
